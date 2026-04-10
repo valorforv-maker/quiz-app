@@ -21,7 +21,9 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          # Sorun çıkaran libtinfo5 ve ncurses5 paketlerini kaldırdım, 
+          # modern Ubuntu için gerekli olanları ekledim.
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev cmake libffi-dev libssl-dev
 
       - name: Install Build Tools
         run: |
@@ -30,8 +32,8 @@ jobs:
 
       - name: Build with Buildozer
         run: |
-          # Mevcut spec dosyasını kullanıyoruz
-          buildozer android debug
+          # Buildozer'ın ilk çalışmada hata vermemesi için otomatik 'yes' diyoruz
+          yes | buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

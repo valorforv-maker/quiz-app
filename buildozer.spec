@@ -10,7 +10,7 @@ source.include_exts = py,png,jpg,kv,atlas,ttf
 version = 1.0
 
 # setuptools eklemek paketleme hatalarını önler
-requirements = python3,pygame-ce,setuptools
+requirements = python3,pygame-ce,setuptools, cython==0.29.33
 
 orientation = portrait
 fullscreen = 1

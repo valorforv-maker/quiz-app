@@ -18,15 +18,13 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt update
-          # Ubuntu 24.04 için eksiksiz liste
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip \
             autoconf automake libtool pkg-config zlib1g-dev cmake \
             libffi-dev libssl-dev m4 libncurses5-dev libncursesw5-dev \
             libtinfo6 libncurses6 help2man
 
-      - name: Fix Autoconf Macros (Kritik Adım)
+      - name: Fix Autoconf Macros
         run: |
-          # LT_SYS_SYMBOL_USCORE hatasını çözmek için libtool makrolarını sisteme tanıtıyoruz
           sudo cp /usr/share/aclocal/libtool.m4 /usr/share/autoconf/autoconf/
           sudo cp /usr/share/aclocal/ltoptions.m4 /usr/share/autoconf/autoconf/
           sudo cp /usr/share/aclocal/ltsugar.m4 /usr/share/autoconf/autoconf/
@@ -40,5 +38,9 @@ jobs:
 
       - name: Build with Buildozer
         run: |
-          # Lisansları otomatik onayla ve derlemeyi başlat
+          # ÖNEMLİ: Sistemdeki hatalı NDK yollarını temizliyoruz
+          export ANDROID_NDK_HOME=""
+          export ANDROID_NDK_ROOT=""
+          
+          # Lisansları onayla ve derlemeyi başlat
           yes | buildozer android debug

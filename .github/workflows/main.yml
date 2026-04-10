@@ -18,30 +18,33 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt update
-          # Ubuntu 24.04 için kritik olan libltdl-dev eklendi
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip \
             autoconf automake libtool pkg-config zlib1g-dev cmake \
             libffi-dev libssl-dev m4 libncurses5-dev libncursesw5-dev \
             libtinfo6 libncurses6 help2man libltdl-dev
 
+      - name: Fix Autoconf Macros
+        run: |
+          sudo cp /usr/share/aclocal/libtool.m4 /usr/share/autoconf/autoconf/ || true
+
       - name: Install Build Tools
         run: |
           python -m pip install --upgrade pip
-          # Cython ve Buildozer'ın en kararlı ikilisini kuruyoruz
           pip install buildozer cython==0.29.33 setuptools
 
       - name: Build with Buildozer
         run: |
-          # 1. GitHub'ın önceden tanımladığı ve hataya sebep olan NDK yollarını tamamen siliyoruz
           unset ANDROID_NDK_HOME
           unset ANDROID_NDK_ROOT
           export ANDROID_NDK_HOME=""
           export ANDROID_NDK_ROOT=""
-
-          # 2. SDL2 ve libffi derleme hatalarını (macro undefined) önlemek için 
-          # sistemdeki libtool makrolarını derleme dizinine kopyalıyoruz
-          sudo cp /usr/share/aclocal/libtool.m4 /usr/share/autoconf/autoconf/ || true
-          
-          # 3. Lisansları onaylayıp log_level 2 (detaylı log) ile başlatıyoruz
-          # Eğer 'yes' komutu hata verirse alternatif olarak direkt başlatıyoruz
           yes | buildozer android debug
+        continue-on-error: false
+
+      - name: Upload APK (All-Scan Mode)
+        uses: actions/upload-artifact@v4
+        with:
+          name: BilgiYarismasi-APK
+          # 'bin/*.apk' yerine bu kalıp tüm alt klasörleri tarar ve dosyayı yakalar
+          path: "**/*.apk"
+          retention-days: 5

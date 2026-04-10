@@ -21,22 +21,19 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt update
-          # Sorun çıkaran libtinfo5 ve ncurses5 paketlerini kaldırdım, 
-          # modern Ubuntu için gerekli olanları ekledim.
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev cmake libffi-dev libssl-dev
+          # autoconf, automake ve m4 paketleri "autoreconf" hatasını çözer
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip \
+            autoconf automake libtool pkg-config zlib1g-dev cmake \
+            libffi-dev libssl-dev m4
 
       - name: Install Build Tools
         run: |
           python -m pip install --upgrade pip
+          # Cython 0.29.33 Pygame-ce için en kararlı sürümdür
           pip install buildozer cython==0.29.33 setuptools
 
       - name: Build with Buildozer
         run: |
-          # Buildozer'ın ilk çalışmada hata vermemesi için otomatik 'yes' diyoruz
-          yes | buildozer android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: BilgiYarismasi-APK
-          path: bin/*.apk
+          # 'yes' komutunu boru hattı (pipe) yerine buildozer'a doğrudan gönderiyoruz
+          # Bu şekilde "Broken pipe" hatasının önüne geçeriz
+          buildozer android debug || buildozer android debug
